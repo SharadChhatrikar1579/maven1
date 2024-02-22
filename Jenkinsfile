@@ -3,7 +3,7 @@ pipeline
     agent any
     stages
     {
-        stage('continuos download')
+        stage('Continuos Download')
         {
             steps
             {
@@ -17,29 +17,35 @@ pipeline
                 sh 'mvn package'
             }
         }
-        stage('Continuos deployment')
+        stage('Continuos Delivery')
         {
             steps
             {
                 deploy adapters: [tomcat9(credentialsId: '5f2d3d2d-9e11-4614-b025-d500f6bca561', path: '', url: 'http://172.31.39.148:8080')], contextPath: 'testapp', war: '**/*.war'
             }
         }
-        stage('Continuous testing')
+        stage('Continuos Testing')
         {
             steps
             {
                 git 'https://github.com/SharadChhatrikar1579/FunctionalTesting.git'
-                
-                sh 'java -jar /var/lib/jenkins/workspace/DeclarativePipeline/testing.jar'
+                sh 'java -jar /var/lib/jenkins/workspace/DeclarativePipeline1/testing.jar'
             }
         }
-        stage('Continuos Delivery')
+        
+    }
+    post
+    {
+        success
         {
-            steps
-            {
-                input message: 'Need approval from DM. Kindly check and approve', submitter: 'Srinivas'
-                deploy adapters: [tomcat9(credentialsId: '5f2d3d2d-9e11-4614-b025-d500f6bca561', path: '', url: 'http://172.31.42.217:8080')], contextPath: 'prodapp', war: '**/*.war'
-            }
+            deploy adapters: [tomcat9(credentialsId: '5f2d3d2d-9e11-4614-b025-d500f6bca561', path: '', url: 'http://172.31.42.217:8080')], contextPath: 'prodapp', war: '**/*.war'
+        }
+        failure
+        {
+            mail bcc: '', body: 'Jenkins has failed in CI', cc: 'sharadchha@gmail.com', from: '', replyTo: '', subject: 'CI failed', to: 'sharad@gmail.com'
         }
     }
 }
+
+    
+
